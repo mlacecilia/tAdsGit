@@ -1,4 +1,39 @@
-#Include "Fivewin.ch"
+#IFNDEF __DOS__
+
+    #include "fivewin.ch"
+
+#ELSE
+
+    #include "hbclass.ch"
+
+   #DEFINE  CRLF CHR(13)+CHR(10)
+   #DEFINE VK_SHIFT 16
+   #DEFINE VK_CONTROL 17
+   #DEFINE VK_RETURN 13
+   #DEFINE VK_ESCAPE 27
+   #DEFINE VK_DELETE 46
+   #DEFINE VK_UP 38
+   #DEFINE VK_DOWN 40
+   #DEFINE VK_LEFT 37
+   #DEFINE VK_RIGHT 39
+
+   #DEFINE WM_SETFOCUS 7
+
+   #xtranslate MsgInfo(<cMsn>) => Alert( <cMsn> )
+   #xtranslate MsgStop(<cMsn>) => Alert( <cMsn> )
+
+    #xcommand DEFAULT <uVar1> := <uVal1> ;
+                      [, <uVarN> := <uValN> ] => ;
+                           If( <uVar1> == nil, <uVar1> := <uVal1>, ) ;;
+                        [ If( <uVarN> == nil, <uVarN> := <uValN>, ); ]
+
+   #xcommand TEXT INTO <v> => #pragma __text|<v>+=%s+hb_eol();<v>:=""
+   #xcommand TRY  => BEGIN SEQUENCE WITH {| oErr | Break( oErr ) }
+   #xcommand CATCH [<!oErr!>] => RECOVER [USING <oErr>] <-oErr->
+   #xcommand FINALLY => ALWAYS
+
+
+#ENDIF
 
 FUNCTION tAdsPopupBrowse( aValue, oGet, bInit, nColumn, f_nWidth, f_nHeight)
 
@@ -7,6 +42,8 @@ FUNCTION tAdsPopupBrowse( aValue, oGet, bInit, nColumn, f_nWidth, f_nHeight)
    local aPoint := { oGet:nTop + oGet:nHeight, oGet:nLeft }
 
    DEFAULT nColumn := 1, f_nWidth := 500, f_nHeight := 180
+
+#IFNDEF __DOS__
 
    if oGet:Cargo == nil
 
@@ -67,6 +104,7 @@ FUNCTION tAdsPopupBrowse( aValue, oGet, bInit, nColumn, f_nWidth, f_nHeight)
       oGet:Cargo:End()
       oGet:Cargo = nil
    endif
+#ENDIF
 
 return nil
 

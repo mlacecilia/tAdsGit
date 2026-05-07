@@ -84,7 +84,7 @@ FUNCTION tAds_BackupDataBase(f_nConnection,f_cDestinationPath,f_cOptionBackup)
           //                   are only supported with ADT tables.
 
   oDs_Qry := tAds():DsNew(2,f_nConnection)
-  oDs_Qry:cQrySql := "EXECUTE PROCEDURE sp_BackupDatabase('"+;
+  oDs_Qry:cQrySql := "EXECUTE PROCEDURE sp_BackupDatabase('"+; 
                       f_cDestinationPath+"', '"+;
                       f_cOptionBackup+"')"
   lExecute := oDs_Qry:DsExecute()
@@ -93,9 +93,10 @@ FUNCTION tAds_BackupDataBase(f_nConnection,f_cDestinationPath,f_cOptionBackup)
 RETURN lExecute  
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-FUNCTION tAds_RestoreDataBase(f_cSourcePath,f_cDestinationPath,f_cSourcePassword)
+FUNCTION tAds_RestoreDataBase(f_nConnection,f_cSourcePath,f_cDestinationPath,f_cSourcePassword)
   Local oDs_Qry, lExecute := .F.
   
+  Default f_nConnection   := tAds_GetConnectionDefault()
   // Note: f_cSourcePassword is password adssys user
   
   oDs_Qry := tAds():DsNew(2,f_nConnection)

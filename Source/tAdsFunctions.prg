@@ -93,7 +93,7 @@ LOCAL cDecimals:=""
 DEFAULT f_nDecimal := 0, lDelDecimal := .T., f_lBritanico := .T.
 
 IF f_nDecimal == 0
-   cRet := ALLTRIM(STR(nValor))
+   cRet := ALLTRIM(STR(nValor)) 
 ELSE
    cRet:=ALLTRIM(STR(ROUND(nValor,f_nDecimal)))
 ENDIF
@@ -465,3 +465,91 @@ FUNCTION TAds_CleanChars(f_cTxt,f_aCaracteresRetira)
    Next
    
 RETURN cTxtRetorno
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+FUNCTION TAds_FilterToSql(f_cFilter)
+	Local lc_cSqlRet := ""
+	
+	lc_cSqlRet := f_cFilter
+	lc_cSqlRet := StrTran(lc_cSqlRet,".and.","and")
+	lc_cSqlRet := StrTran(lc_cSqlRet,".AND.","AND")
+	lc_cSqlRet := StrTran(lc_cSqlRet,".or.","or")
+	lc_cSqlRet := StrTran(lc_cSqlRet,".OR.","OR")
+	lc_cSqlRet := StrTran(lc_cSqlRet,"==","=")
+	lc_cSqlRet := StrTran(lc_cSqlRet,"CTOD","")
+	
+RETURN lc_cSqlRet
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+FUNCTION tAds_LGPD_Document(f_cDocument)
+	Local lc_cDocLGPD := ""
+
+	lc_cDocLGPD := AllTrim(f_cDocument)
+
+	If hb_at(".",lc_cDocLGPD) > 0 // Se o documento esta formatado
+		If Len(lc_cDocLGPD) == 14 // Cpf Formatado
+			lc_cDocLGPD := hb_uStuff(lc_cDocLGPD,1,3,"***")
+			lc_cDocLGPD := hb_uStuff(lc_cDocLGPD,13,2,"**")
+		elseif Len(lc_cDocLGPD) == 18 //Cnpj Formatado 
+			lc_cDocLGPD := hb_uStuff(lc_cDocLGPD,4,2,"**")
+			lc_cDocLGPD := hb_uStuff(lc_cDocLGPD,17,2,"**")
+		Else 
+			lc_cDocLGPD := hb_uStuff(lc_cDocLGPD,1,3,"***")
+		EndIf
+	else
+		If Len(lc_cDocLGPD) == 11 // Cpf sem Formatação
+			lc_cDocLGPD := hb_uStuff(lc_cDocLGPD,1,3,"***")
+			lc_cDocLGPD := hb_uStuff(lc_cDocLGPD,10,2,"**")
+		elseif Len(lc_cDocLGPD) == 14 //Cnpj Formatação 
+			lc_cDocLGPD := hb_uStuff(lc_cDocLGPD,3,2,"**")
+			lc_cDocLGPD := hb_uStuff(lc_cDocLGPD,13,2,"**")
+		Else 
+			lc_cDocLGPD := hb_uStuff(lc_cDocLGPD,1,3,"***")
+		EndIf
+	EndIf
+
+RETURN lc_cDocLGPD
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+FUNCTION tAds_LGPD_Name(f_cName)
+	Local lc_cNameLGPD := ""
+	Local lc_aPalavrasAll := {}, lc_aPalavrasValidas := {}
+	Local lc_iFor := 0
+
+	lc_cNameLGPD := AllTrim(f_cName)
+
+	If Len(lc_cNameLGPD) == 0
+		Return ""
+	EndIf
+
+	lc_aPalavrasAll := hb_ATokens(lc_cNameLGPD)
+
+	For lc_iFor := 1 to Len(lc_aPalavrasAll)
+		//if Len(lc_aPalavrasAll) > 3
+			aadd(lc_aPalavrasValidas,lc_aPalavrasAll[lc_iFor])
+		//endif
+	Next
+
+	If Len(lc_aPalavrasValidas) > 5
+		lc_aPalavrasValidas[5] := hb_uStuff(lc_aPalavrasValidas[5],1,3,"***")
+		lc_aPalavrasValidas[2] := hb_uStuff(lc_aPalavrasValidas[2],3,4,"****")
+	ElseIf Len(lc_aPalavrasValidas) > 4
+		lc_aPalavrasValidas[4] := hb_uStuff(lc_aPalavrasValidas[4],1,3,"***")
+		lc_aPalavrasValidas[2] := hb_uStuff(lc_aPalavrasValidas[2],3,4,"****")
+	ElseIf Len(lc_aPalavrasValidas) > 3
+		lc_aPalavrasValidas[4] := hb_uStuff(lc_aPalavrasValidas[4],1,3,"***")
+		lc_aPalavrasValidas[2] := hb_uStuff(lc_aPalavrasValidas[2],3,4,"****")
+	ElseIf Len(lc_aPalavrasValidas) > 2
+		lc_aPalavrasValidas[3] := hb_uStuff(lc_aPalavrasValidas[3],1,3,"***")
+		lc_aPalavrasValidas[1] := hb_uStuff(lc_aPalavrasValidas[1],4,4,"****")
+	ElseIf Len(lc_aPalavrasValidas) > 1
+		lc_aPalavrasValidas[2] := hb_uStuff(lc_aPalavrasValidas[2],2,4,"****")
+	endIf
+
+	For lc_iFor := 1 to Len(lc_aPalavrasValidas)
+		lc_cNameLGPD := lc_aPalavrasValidas[lc_iFor] + " "
+	Next
+
+RETURN AllTrim(lc_cNameLGPD)
+
+
